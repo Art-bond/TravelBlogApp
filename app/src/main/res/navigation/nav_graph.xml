@@ -7,23 +7,65 @@
 
     <fragment
         android:id="@+id/fragmentLogin"
-        android:name="ru.d3st.travelblogapp.login.FragmentLogin"
+        android:name="ru.d3st.travelblogapp.presentation.login.LoginFragment"
         android:label="FragmentLogin" >
         <action
-            android:id="@+id/action_fragmentLogin_to_fragmentConsumer"
-            app:destination="@id/fragmentConsumer" />
+            android:id="@+id/action_fragmentLogin_to_overviewFragment"
+            app:destination="@id/overviewFragment" />
+        <action
+            android:id="@+id/action_fragmentLogin_to_permissionFragment"
+            app:destination="@id/permissionFragment" />
         <action
             android:id="@+id/action_fragmentLogin_to_fragmentCameraMap"
             app:destination="@id/fragmentCameraMap" />
     </fragment>
     <fragment
-        android:id="@+id/fragmentConsumer"
-        android:name="ru.d3st.travelblogapp.consumer.FragmentConsumer"
-        android:label="fragment_consumer_fragment"
-        tools:layout="@layout/fragment_consumer_fragment" />
-    <fragment
         android:id="@+id/fragmentCameraMap"
-        android:name="ru.d3st.travelblogapp.blogger.FragmentCameraMap"
+        android:name="ru.d3st.travelblogapp.presentation.blogger.CameraWithMapFragment"
         android:label="fragment_camera_map_fragment"
-        tools:layout="@layout/fragment_camera_map_fragment" />
+        tools:layout="@layout/fragment_camera_map" >
+        <action
+            android:id="@+id/action_fragmentCameraMap_to_fragmentLogin"
+            app:destination="@id/fragmentLogin" />
+    </fragment>
+    <fragment
+        android:id="@+id/overviewFragment"
+        android:name="ru.d3st.travelblogapp.presentation.overview.OverviewFragment"
+        android:label="OverviewFragment" >
+        <action
+            android:id="@+id/action_overviewFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/permissionFragment"
+        android:name="ru.d3st.travelblogapp.presentation.permission.PermissionFragment"
+        android:label="fragment_permission"
+        tools:layout="@layout/fragment_permission" >
+        <action
+            android:id="@+id/action_permissionFragment_to_fragmentCameraMap"
+            app:destination="@id/fragmentCameraMap" />
+    </fragment>
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="ru.d3st.travelblogapp.presentation.profile.ProfileFragment"
+        android:label="ProfileFragment" >
+        <action
+            android:id="@+id/action_profileFragment_to_showFragment"
+            app:destination="@id/showFragment" />
+        <argument
+            android:name="bloggerId"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/showFragment"
+        android:name="ru.d3st.travelblogapp.presentation.location.ShowFragment"
+        android:label="fragment_show"
+        tools:layout="@layout/fragment_show" >
+        <argument
+            android:name="video"
+            app:argType="ru.d3st.travelblogapp.model.domain.VideoDomain" />
+        <argument
+            android:name="bloggerId"
+            app:argType="string" />
+    </fragment>
 </navigation>

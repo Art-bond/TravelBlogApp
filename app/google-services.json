@@ -14,6 +14,51 @@
       },
       "oauth_client": [
         {
+          "client_id": "67721459597-239d6ahkvlr5a1ljutforb7qsj0di9pu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ru.d3st.travelblogapp",
+            "certificate_hash": "2680c90e3b6bb8c92d6aec997cd37514d57aecce"
+          }
+        },
+        {
+          "client_id": "67721459597-kagsedk95a6sl9l98opgtuoppmoni8ot.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVTd9HI_8eX-mhp9ii68NNWribeeQkbek"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "67721459597-kagsedk95a6sl9l98opgtuoppmoni8ot.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:67721459597:android:c36f6c215b4fcf3fa9efc4",
+        "android_client_info": {
+          "package_name": "ru.d3st.travelblogapp.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "67721459597-11g2r052p5cesmer1s6rb8i2r7irapc5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ru.d3st.travelblogapp.debug",
+            "certificate_hash": "2680c90e3b6bb8c92d6aec997cd37514d57aecce"
+          }
+        },
+        {
           "client_id": "67721459597-kagsedk95a6sl9l98opgtuoppmoni8ot.apps.googleusercontent.com",
           "client_type": 3
         }
