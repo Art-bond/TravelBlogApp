@@ -7,9 +7,7 @@ import android.location.Location
 import android.net.Uri
 import android.os.Bundle
 import android.os.Looper
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
 import androidx.camera.core.VideoCapture
@@ -27,6 +25,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.snackbar.Snackbar
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
@@ -40,6 +39,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import ru.d3st.travelblogapp.R
 import ru.d3st.travelblogapp.databinding.FragmentCameraMapBinding
+import ru.d3st.travelblogapp.utils.currentLatLng
 import ru.d3st.travelblogapp.utils.currentLocation
 import timber.log.Timber
 import java.io.File
@@ -88,6 +88,8 @@ class CameraWithMapFragment : Fragment() {
         //проверям залогинен ли пользователь
         if (currentUser == null) {
             navigateToStartScreen()
+        }else{
+            showSnackBar("You are logged in as ${currentUser.displayName}")
         }
 
         initYoutubeSettings(currentUser)
@@ -95,8 +97,23 @@ class CameraWithMapFragment : Fragment() {
         outputDirectory = getOutputDirectory()
 
         cameraExecutor = Executors.newSingleThreadExecutor()
+
+        setHasOptionsMenu(true)
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        menu.findItem(R.id.log_out)?.setOnMenuItemClickListener {
+            Firebase.auth.signOut()
+            navigateToStartScreen()
+            return@setOnMenuItemClickListener true
+        }
+        super.onPrepareOptionsMenu(menu)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.log_out, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -116,16 +133,30 @@ class CameraWithMapFragment : Fragment() {
         binding.cameraCaptureButton.setOnClickListener {
             if (viewModel.statusRecording.value == false) {
                 binding.cameraCaptureButton.setBackgroundColor(Color.RED)
-                startLocationUpdates()
                 startRecording()
+                startLocationUpdates()
                 viewModel.startRecord()
             } else if (viewModel.statusRecording.value == true) {
                 binding.cameraCaptureButton.setBackgroundColor(Color.GRAY)
-                stopRecording()
                 stopLocationUpdates()
+                stopRecording()
                 viewModel.stopRecord()
             }
         }
+        //привязываем состояние записи
+/*        viewModel.statusRecording.observe(viewLifecycleOwner,{
+            if (it){
+                startRecording()
+                startLocationUpdates()
+            } else{
+                stopLocationUpdates()
+                stopRecording()
+            }
+        })*/
+
+        viewModel.errorMessage.observe(viewLifecycleOwner,{
+            showSnackBar(it)
+        })
 
         return binding.root
     }
@@ -141,8 +172,8 @@ class CameraWithMapFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        stopLocationUpdates()
-        stopRecording()
+/*        stopLocationUpdates()
+        stopRecording()*/
         cameraExecutor.shutdown()
     }
 
@@ -242,9 +273,6 @@ class CameraWithMapFragment : Fragment() {
     }
 
 
-
-
-
     /**
      * Переходим на начальных экран
      */
@@ -259,7 +287,7 @@ class CameraWithMapFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             //Начальные параметры
-            val homeLatLng: LatLng = fusedLocationClient.currentLocation()
+            val homeLatLng: LatLng = fusedLocationClient.currentLatLng()
 
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng, 15f))
         }
@@ -284,7 +312,7 @@ class CameraWithMapFragment : Fragment() {
     @SuppressLint("MissingPermission")
     private fun getMyLocation(googleMap: GoogleMap) {
         viewLifecycleOwner.lifecycleScope.launch {
-            val latLng = fusedLocationClient.currentLocation()
+            val latLng = fusedLocationClient.currentLatLng()
             googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng))
         }
     }
@@ -301,7 +329,9 @@ class CameraWithMapFragment : Fragment() {
         //движение камеры
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng))
         //установка маркера
-        googleMap.addMarker(MarkerOptions().position(latLng))
+        googleMap.addMarker(
+            MarkerOptions()
+            .position(latLng))
 
         //сохраняем в базу данных
         viewModel.addLocation(location)
@@ -325,9 +355,17 @@ class CameraWithMapFragment : Fragment() {
     /**
      * Отмена слежения
      */
+    @SuppressLint("MissingPermission")
     private fun stopLocationUpdates() {
+        //заносим последнее местоположение в базу
+        viewLifecycleOwner.lifecycleScope.launch {
+            val location = fusedLocationClient.currentLocation()
+            viewModel.addLocation(location)
+        }
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }
+
+
 
 
     /**
@@ -346,6 +384,17 @@ class CameraWithMapFragment : Fragment() {
             }
         } catch (e: Resources.NotFoundException) {
             Timber.tag(LOG_TAG).e(e, "Can't find style. Error: ")
+            showSnackBar(e.message)
+        }
+    }
+
+    private fun showSnackBar(message: String?) {
+        if (message != null) {
+            Snackbar.make(
+                requireActivity().findViewById(android.R.id.content),
+                message,
+                Snackbar.LENGTH_LONG
+            ).show()
         }
     }
 }

@@ -11,5 +11,6 @@
     <string name="travel_blog_app">TRAVEL BLOG APP</string>
     <string name="as_spectator">as Spectator</string>
     <string name="as_blogger">as Blogger</string>
+    <string name="log_out">Log out</string>
 
 </resources>

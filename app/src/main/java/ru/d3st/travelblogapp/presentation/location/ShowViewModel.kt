@@ -8,6 +8,7 @@ import kotlinx.coroutines.launch
 import ru.d3st.travelblogapp.data.repository.SpectatorRepository
 import ru.d3st.travelblogapp.model.domain.LocationDomain
 import ru.d3st.travelblogapp.model.domain.VideoDomain
+import timber.log.Timber
 
 class ShowViewModel @AssistedInject constructor(
     private val repository: SpectatorRepository,
@@ -29,16 +30,23 @@ class ShowViewModel @AssistedInject constructor(
             val video = videoDomain
             _selectedVideo.value = video
             val locations = runCatching { repository.loadLocations(bloggerId, video.start, video.end) }.getOrNull().orEmpty()
+            Timber.i("find ${locations.size} locations")
             _locations.value = locations
         }
     }
 
+    /**
+     * Метод позволяет найти нужный момент видео при клике на точку маршрута на карте
+     * @param latLng координаты точки маршрута
+     * @return true если точка найдена в видео
+     */
     fun selectLocation(latLng: LatLng): Boolean {
         val location = locations.value.orEmpty().firstOrNull { it.latLng == latLng } ?: return false
         val locationTime = location.time.time
         _seekPosition.value = (locationTime - (selectedVideo.value?.start?.time ?: locationTime)) / 1000f
         return true
     }
+
     companion object {
         /**
          * Позволяем изпользовать [ShowViewModel] так как нам нужен ViewModel

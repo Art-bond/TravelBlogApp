@@ -17,10 +17,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MapStyleOptions
-import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.maps.model.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
@@ -28,13 +25,17 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import ru.d3st.travelblogapp.R
 import ru.d3st.travelblogapp.databinding.FragmentShowBinding
-import ru.d3st.travelblogapp.utils.currentLocation
+import ru.d3st.travelblogapp.utils.currentLatLng
+import timber.log.Timber
 import javax.inject.Inject
+
+
+
 
 @AndroidEntryPoint
 class ShowFragment : Fragment() {
 
-
+    //переданные данные из фрагмента Профиля
     private val args: ShowFragmentArgs by navArgs()
 
     @Inject
@@ -51,44 +52,16 @@ class ShowFragment : Fragment() {
 
     private lateinit var binding: FragmentShowBinding
 
-    @SuppressLint("MissingPermission")
-    private val callback = OnMapReadyCallback { googleMap ->
 
-        googleMap.setOnMarkerClickListener { marker ->
-            return@setOnMarkerClickListener viewModel.selectLocation(marker.position)
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            //Начальные параметры
-            val homeLatLng = fusedLocationClient.currentLocation()
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng, 15f))
-        }
-
-        //применить стиль из папки Raw
-        setMapStyle(googleMap)
-        requireActivity().findViewById<FloatingActionButton>(R.id.fab_location_consumer).setOnClickListener { getMyLocation(googleMap) }
-
-        viewModel.locations.observe(viewLifecycleOwner) { locations ->
-            locations.windowed(2).forEach { (start, end) ->
-                googleMap.addPolyline(PolylineOptions().add(start.latLng, end.latLng).color(Color.BLUE))
-            }
-
-            for (latLng in locations.map { it.latLng }) {
-                val position = MarkerOptions().position(latLng)
-                googleMap.addMarker(position)
-            }
-        }
-
-    }
 
     @SuppressLint("MissingPermission")
     private fun getMyLocation(googleMap: GoogleMap) {
         viewLifecycleOwner.lifecycleScope.launch {
-            updateMapLocation(fusedLocationClient.currentLocation(), googleMap)
+            updateMapPosition(fusedLocationClient.currentLatLng(), googleMap)
         }
     }
-
-    private fun updateMapLocation(latLng: LatLng?, googleMap: GoogleMap) {
+    //двигаем карту к нужным координатам
+    private fun updateMapPosition(latLng: LatLng, googleMap: GoogleMap) {
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
     }
 
@@ -97,7 +70,7 @@ class ShowFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         var player: YouTubePlayer? = null
         binding = FragmentShowBinding.inflate(inflater, container, false)
 
@@ -111,6 +84,7 @@ class ShowFragment : Fragment() {
                     youTubePlayer.play()
                 }
             })
+        //полноэкранный режим
         binding.youtubePlayer.getPlayerUiController().setFullScreenButtonClickListener {
             if (binding.youtubePlayer.isFullScreen()) {
                 binding.youtubePlayer.exitFullScreen()
@@ -121,6 +95,7 @@ class ShowFragment : Fragment() {
             }
         }
 
+        //при клике на точку маршрута -> перемещение в этот момент видео, где это было снято
         viewModel.seekPosition.observe(viewLifecycleOwner) { position -> player?.seekTo(position) }
 
         return binding.root
@@ -134,16 +109,59 @@ class ShowFragment : Fragment() {
         mapFragment?.getMapAsync(callback)
     }
 
+    /**
+     * Настройки карты
+     */
+    @SuppressLint("MissingPermission")
+    private val callback = OnMapReadyCallback { googleMap ->
+
+        googleMap.setOnMarkerClickListener { marker ->
+            return@setOnMarkerClickListener viewModel.selectLocation(marker.position)
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            //Начальные параметры
+            val homeLatLng = fusedLocationClient.currentLatLng()
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng, 15f))
+        }
+
+        //применить стиль из папки Raw
+        setMapStyle(googleMap)
+
+        requireActivity().findViewById<FloatingActionButton>(R.id.fab_location_consumer)
+            .setOnClickListener { getMyLocation(googleMap) }
+
+        //рисуем примую между соседними точками
+        viewModel.locations.observe(viewLifecycleOwner) { locations ->
+            locations.windowed(2).forEach { (start, end) ->
+
+                googleMap.addPolyline(
+                    PolylineOptions().add(start.latLng, end.latLng).color(Color.RED)
+                )
+            }
+
+            for (latLng in locations.map { it.latLng }) {
+
+                val position = MarkerOptions().position(latLng)
+
+                googleMap.addMarker(position)
+                googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng))
+
+            }
+        }
+
+    }
+    //стиль карты
     private fun setMapStyle(map: GoogleMap) {
         try {
             val success = map.setMapStyle(
                 MapStyleOptions.loadRawResourceStyle(requireContext(), R.raw.map_style)
             )
             if (!success) {
-                //Timber.tag(TAG).i("Style apply failed")
+                Timber.i("Style apply failed")
             }
         } catch (e: Resources.NotFoundException) {
-            //Timber.tag(TAG).e(e, "Can't find style. Error: ")
+            Timber.e(e, "Can't find style. Error: ")
         }
     }
 

@@ -1,7 +1,10 @@
 package ru.d3st.travelblogapp.presentation.blogger
 
 import android.location.Location
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.api.client.http.InputStreamContent
 import com.google.api.services.youtube.YouTube
 import com.google.api.services.youtube.model.Video
@@ -39,6 +42,9 @@ class CameraWithMapViewModel @Inject constructor(
         getCurrentUser()
     }
 
+    /**
+     * Получаем залогиненного пользователя
+     */
     private fun getCurrentUser() {
         viewModelScope.launch {
             _currentUser.value = Firebase.auth.currentUser
@@ -62,7 +68,6 @@ class CameraWithMapViewModel @Inject constructor(
     /**
      * Добавляем данные о новом местоположении в репозиторий
      * @param location данные о местоположении
-     * @param user текущий пользователь
      */
     fun addLocation(location: Location) {
         if (_currentUser.value != null) {
@@ -74,7 +79,7 @@ class CameraWithMapViewModel @Inject constructor(
         }
     }
 
-    fun updateVideo(video: Video, startTS: Timestamp, endTS: Timestamp) {
+    private fun updateVideo(video: Video, startTS: Timestamp, endTS: Timestamp) {
         val videoId = video.id
 
         if (_currentUser.value != null) {
@@ -86,6 +91,13 @@ class CameraWithMapViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Метод настраивает загрузку видео в сервис Youtube
+     * @param youTube экземпляр класса подключенное библиотеки Youtube
+     * @param file видеофаил сохраненный на устройстве
+     * @param startTS время начала видео
+     * @param endTS время окончания видео
+     */
     fun uploadVideo(youTube: YouTube, file: File, startTS: Timestamp, endTS: Timestamp) {
         viewModelScope.launch(Dispatchers.IO) {
             uploadYoutubeVideo(
@@ -110,7 +122,7 @@ class CameraWithMapViewModel @Inject constructor(
         val video = Video()
         val snippet = VideoSnippet()
         snippet.description = "TravelBlog video $date"
-        snippet.title = "TravelBlog video test"
+        snippet.title = "TravelBlog video test day 3"
         video.snippet = snippet
 
         val response: Video =
@@ -119,7 +131,7 @@ class CameraWithMapViewModel @Inject constructor(
         updateVideo(response, startTS, endTS)
     } catch (e: Exception) {
         Timber.e(e, "Failed to upload youtube video")
-        _errorMessage.value = e.message
+        _errorMessage.postValue(e.message)
     }
 }
 

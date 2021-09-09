@@ -9,6 +9,9 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(private val bloggersRepository: BloggersRepository) : ViewModel() {
 
+    /**
+     * Отправляем данные о пользователе в Firebase через [BloggersRepository]
+     */
     fun authUser(credential: AuthCredential) {
         bloggersRepository.authUser(credential)
     }

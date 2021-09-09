@@ -7,7 +7,6 @@ import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.fragment.app.Fragment
@@ -18,6 +17,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.Scope
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
@@ -51,24 +51,17 @@ class LoginFragment : Fragment() {
     ): View {
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
 
-
-        // Configure Google Sign In
-        val gso: GoogleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
-            .requestEmail()
-            .requestProfile()
-            .requestScopes(Scope("https://www.googleapis.com/auth/youtube"))
-            .build()
-
-        googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
+        initGoogleSignIn()
 
         auth = Firebase.auth
 
         return binding.root
     }
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         binding.btnBlogger.setOnClickListener {
             signInLauncher.launch(googleSignInClient.signInIntent)
         }
@@ -78,11 +71,25 @@ class LoginFragment : Fragment() {
 
         val currentUser = auth.currentUser
         updateUI(currentUser)
+
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun initGoogleSignIn() {
+        // Configure Google Sign In
+        val gso: GoogleSignInOptions =
+            GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .requestProfile()
+                .requestScopes(Scope("https://www.googleapis.com/auth/youtube"))
+                .build()
+
+        googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
     }
 
     private fun firebaseAuthWithGoogle(idToken: String) {
@@ -94,7 +101,9 @@ class LoginFragment : Fragment() {
                     Timber.d("signInWithCredential:success")
                     val user = auth.currentUser
                     updateUI(user)
+                    //отправляем данные в Firebase
                     viewModel.authUser(credential)
+
                     checkPermissionAndGoToBlogger()
                     //goToBlogger()
                 } else {
@@ -111,12 +120,14 @@ class LoginFragment : Fragment() {
     }
 
     private fun updateUI(user: FirebaseUser?) {
-        Toast.makeText(requireContext(), "user ${user?.displayName}", Toast.LENGTH_LONG).show()
+        if (user == null) {
+            showSnackBar("You are not logged in")
+        } else showSnackBar("Logged in as ${user.displayName}")
+
     }
 
     private fun showAuthFailed(exception: Exception?) {
-        Toast.makeText(requireContext(), exception?.message ?: "Failed to auth", Toast.LENGTH_LONG)
-            .show()
+        showSnackBar(exception?.message ?: "Failed to auth")
     }
 
 
@@ -137,7 +148,8 @@ class LoginFragment : Fragment() {
     }
 
     private val requestPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { granted: Map<String, Boolean> ->
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions())
+        { granted: Map<String, Boolean> ->
             Timber.i("permission $granted")
 
             if (granted.containsValue(false)) showAcceptAllPermissions()
@@ -154,8 +166,7 @@ class LoginFragment : Fragment() {
         if (!allPermissionGranted) {
             goToSettings()
         }
-        Toast.makeText(requireContext(), "You should accept all permissions", Toast.LENGTH_SHORT)
-            .show()
+        showSnackBar("You should accept all permissions")
     }
 
     private fun goToSettings() {
@@ -183,6 +194,15 @@ class LoginFragment : Fragment() {
         }
     }
 
+    private fun showSnackBar(message: String?) {
+        if (message != null) {
+            Snackbar.make(
+                requireActivity().findViewById(android.R.id.content),
+                message,
+                Snackbar.LENGTH_LONG
+            ).show()
+        }
+    }
 
 
 }

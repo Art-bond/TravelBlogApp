@@ -6,7 +6,7 @@ import com.google.firebase.firestore.GeoPoint
 
 @Keep
 data class FirebaseLocation(
-    val geoposition: GeoPoint,
+    val geoPosition: GeoPoint,
     val timestamp: Timestamp,
 ) {
     @Suppress("unused")

@@ -5,9 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import ru.d3st.travelblogapp.model.domain.BloggerDomain
 import kotlinx.coroutines.launch
 import ru.d3st.travelblogapp.data.repository.SpectatorRepository
+import ru.d3st.travelblogapp.model.domain.BloggerDomain
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,7 +25,6 @@ class OverviewViewModel @Inject constructor(private val repository: SpectatorRep
         viewModelScope.launch {
 
             _allUsers.value = repository.getBloggerList()
-
         }
     }
 }
