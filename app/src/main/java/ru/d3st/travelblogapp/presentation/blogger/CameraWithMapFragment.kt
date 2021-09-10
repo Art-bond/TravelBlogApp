@@ -253,6 +253,7 @@ class CameraWithMapFragment : Fragment() {
                     Timber.tag(LOG_TAG).d("Video saved succeeded: %s", Uri.fromFile(videoFile))
                     val endTS = Timestamp.now()
                     viewModel.uploadVideo(youTube, videoFile, startTS, endTS)
+                    showSnackBar("video uploaded on Youtube successfully")
                 }
 
                 override fun onError(videoCaptureError: Int, message: String, cause: Throwable?) {
