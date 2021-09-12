@@ -64,8 +64,8 @@ class FireBaseData @Inject constructor() {
                     "name" to user.displayName,
                     "email" to user.email,
                     "photoUrl" to user.photoUrl?.toString(),
-                  //  "locations" to 0,
-                  //  "videos" to 0,
+                    "locations" to 0,
+                    "videos" to 0,
                 )
                 //добавляем данные в базу
                 Firebase.firestore.collection("bloggers").document(user.uid).set(userData)

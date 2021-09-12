@@ -101,9 +101,13 @@ class LoginFragment : Fragment() {
                     Timber.d("signInWithCredential:success")
                     val user = auth.currentUser
                     updateUI(user)
-                    //отправляем данные в Firebase
-                    viewModel.authUser(credential)
-
+                    //Проверка есть ли пользователь в базе
+                    val creationTimestamp = user?.metadata?.creationTimestamp
+                    val lastSignInTimestamp = user?.metadata?.lastSignInTimestamp
+                    if (creationTimestamp == lastSignInTimestamp) {
+                        //отправляем данные в Firebase
+                        viewModel.authUser(credential)
+                    }
                     checkPermissionAndGoToBlogger()
                     //goToBlogger()
                 } else {
