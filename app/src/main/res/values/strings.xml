@@ -12,5 +12,10 @@
     <string name="as_spectator">as Spectator</string>
     <string name="as_blogger">as Blogger</string>
     <string name="log_out">Log out</string>
+    <string name="background_image">background image</string>
+    <string name="blogger_mode">Blogger Mode</string>
+    <string name="spectator_mode">Spectator Mode</string>
+    <string name="logo_image">Logo image</string>
+    <string name="avatar_image">avatar image</string>
 
 </resources>
