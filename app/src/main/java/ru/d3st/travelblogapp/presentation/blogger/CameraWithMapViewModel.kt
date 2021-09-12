@@ -17,6 +17,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ru.d3st.travelblogapp.data.repository.BloggersRepository
+import ru.d3st.travelblogapp.utils.Status
 import timber.log.Timber
 import java.io.BufferedInputStream
 import java.io.File
@@ -37,6 +38,10 @@ class CameraWithMapViewModel @Inject constructor(
 
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String> get() = _errorMessage
+
+    private val _statusLoading = MutableLiveData<Status>()
+    val statusLoading: LiveData<Status>
+    get() = _statusLoading
 
     init {
         getCurrentUser()
@@ -99,6 +104,7 @@ class CameraWithMapViewModel @Inject constructor(
      * @param endTS время окончания видео
      */
     fun uploadVideo(youTube: YouTube, file: File, startTS: Timestamp, endTS: Timestamp) {
+        _statusLoading.postValue(Status.LOADING)
         viewModelScope.launch(Dispatchers.IO) {
             uploadYoutubeVideo(
                 youTube,
@@ -129,10 +135,14 @@ class CameraWithMapViewModel @Inject constructor(
             youTube.videos().insert(listOf("id,snippet,statistics"), video, mediaContent).execute()
         Timber.i("Video uploaded on youtube: $response")
         updateVideo(response, startTS, endTS)
+        _statusLoading.postValue(Status.SUCCESS)
     } catch (e: Exception) {
         Timber.e(e, "Failed to upload youtube video")
+        _statusLoading.postValue(Status.FAILURE)
         _errorMessage.postValue(e.message)
     }
 }
+
+
 
 

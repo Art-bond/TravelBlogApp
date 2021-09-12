@@ -39,6 +39,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import ru.d3st.travelblogapp.R
 import ru.d3st.travelblogapp.databinding.FragmentCameraMapBinding
+import ru.d3st.travelblogapp.utils.Status
 import ru.d3st.travelblogapp.utils.currentLatLng
 import ru.d3st.travelblogapp.utils.currentLocation
 import timber.log.Timber
@@ -88,7 +89,7 @@ class CameraWithMapFragment : Fragment() {
         //проверям залогинен ли пользователь
         if (currentUser == null) {
             navigateToStartScreen()
-        }else{
+        } else {
             showSnackBar("You are logged in as ${currentUser.displayName}")
         }
 
@@ -153,6 +154,13 @@ class CameraWithMapFragment : Fragment() {
                 stopRecording()
             }
         })*/
+
+        viewModel.statusLoading.observe(viewLifecycleOwner, {
+            when (it) {
+                Status.SUCCESS -> showSnackBar("Video successfully uploaded on YouTube")
+                else -> Timber.i("Status upload video is $it")
+            }
+        })
 
         viewModel.errorMessage.observe(viewLifecycleOwner,{
             showSnackBar(it)
@@ -253,7 +261,6 @@ class CameraWithMapFragment : Fragment() {
                     Timber.tag(LOG_TAG).d("Video saved succeeded: %s", Uri.fromFile(videoFile))
                     val endTS = Timestamp.now()
                     viewModel.uploadVideo(youTube, videoFile, startTS, endTS)
-                    showSnackBar("video uploaded on Youtube successfully")
                 }
 
                 override fun onError(videoCaptureError: Int, message: String, cause: Throwable?) {
@@ -314,7 +321,8 @@ class CameraWithMapFragment : Fragment() {
     private fun getMyLocation(googleMap: GoogleMap) {
         viewLifecycleOwner.lifecycleScope.launch {
             val latLng = fusedLocationClient.currentLatLng()
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng))
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
+            Timber.i("My location is $latLng")
         }
     }
 
@@ -332,7 +340,8 @@ class CameraWithMapFragment : Fragment() {
         //установка маркера
         googleMap.addMarker(
             MarkerOptions()
-            .position(latLng))
+                .position(latLng)
+        )
 
         //сохраняем в базу данных
         viewModel.addLocation(location)
@@ -344,7 +353,7 @@ class CameraWithMapFragment : Fragment() {
     @SuppressLint("MissingPermission")
     private fun startLocationUpdates() {
         val locationRequest = LocationRequest.create()
-        locationRequest.interval = 30000L //каждые 30 сек
+        locationRequest.interval = 15000L //каждые 15 сек
 
         fusedLocationClient.requestLocationUpdates(
             locationRequest,
@@ -365,8 +374,6 @@ class CameraWithMapFragment : Fragment() {
         }
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }
-
-
 
 
     /**

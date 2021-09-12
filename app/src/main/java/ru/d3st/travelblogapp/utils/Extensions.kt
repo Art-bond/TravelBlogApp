@@ -12,19 +12,28 @@ import kotlin.coroutines.suspendCoroutine
  */
 @SuppressLint("MissingPermission")
 suspend fun FusedLocationProviderClient.currentLatLng(): LatLng = suspendCoroutine { continuation ->
-    lastLocation.addOnSuccessListener { location ->
-        location?.toLatLng()?.run { continuation.resume(this) }
-    }
+    lastLocation
+        .addOnSuccessListener { location ->
+            location?.toLatLng()?.run {
+                continuation.resume(this)
+            }
+        }
+
+
 }
 
 /**
  * Удобный вызов метода определения текущего [Location]
  */
 @SuppressLint("MissingPermission")
-suspend fun FusedLocationProviderClient.currentLocation(): Location = suspendCoroutine { continuation ->
-    lastLocation.addOnSuccessListener { location ->
-        location?.run { continuation.resume(this) }
+suspend fun FusedLocationProviderClient.currentLocation(): Location =
+    suspendCoroutine { continuation ->
+        lastLocation.addOnSuccessListener { location ->
+            location?.run { continuation.resume(this) }
+        }
     }
-}
 
-fun Location.toLatLng():LatLng = LatLng(this.latitude, this.longitude)
+fun Location.toLatLng(): LatLng = LatLng(
+    this.latitude,
+    this.longitude
+)
