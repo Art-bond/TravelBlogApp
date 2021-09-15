@@ -1,6 +1,6 @@
 package ru.d3st.travelblogapp.data.repository
 
-import ru.d3st.travelblogapp.data.firebase.FireBaseData
+import ru.d3st.travelblogapp.data.firebase.IFireBaseData
 import ru.d3st.travelblogapp.model.DataTransferObjects.asDomainModel
 import ru.d3st.travelblogapp.model.domain.BloggerDomain
 import ru.d3st.travelblogapp.model.domain.LocationDomain
@@ -10,7 +10,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class SpectatorRepository @Inject constructor(private val fireBaseData: FireBaseData) {
+class SpectatorRepository @Inject constructor(private val fireBaseData: IFireBaseData) {
 
     /**
      * Получаем список блогеров
@@ -21,14 +21,14 @@ class SpectatorRepository @Inject constructor(private val fireBaseData: FireBase
 
     /**
      * Получаем список видео данного блогера
-     * @param bloggerId Id блоггера
+     * @param bloggerId Id блогера
      */
     suspend fun getBloggerVideos(bloggerId: String): List<VideoDomain> {
         return fireBaseData.loadVideos(bloggerId).asDomainModel()
     }
 
     /**
-     * Получаем местоположение данного блоггера в определенный момент времени
+     * Получаем местоположение данного блогера в определенный момент времени
      * @param uid выбранный блоггер
      * @param start время начала отрезка времени в котором нам нужны координаты
      * @param end время окончания

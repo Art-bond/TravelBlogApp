@@ -2,9 +2,7 @@ package ru.d3st.travelblogapp.data.firebase
 
 import com.google.api.services.youtube.model.Video
 import com.google.firebase.Timestamp
-import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.Query
@@ -20,7 +18,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
-class FireBaseData @Inject constructor() {
+class FireBaseData @Inject constructor() : IFireBaseData {
 
     /**
      * добавляем локацию в Firebase
@@ -29,7 +27,7 @@ class FireBaseData @Inject constructor() {
      * @param time время внесения данной геопозиции
      * @param status статус записи видео (записывает или нет)
      */
-    fun addLocation(user: FirebaseUser, geoPosition: GeoPoint, time: Date, status: Boolean) {
+    override fun addLocation(user: FirebaseUser, geoPosition: GeoPoint, time: Date, status: Boolean) {
 
         val locationData = mapOf(
             "geoPosition" to geoPosition,
@@ -53,24 +51,21 @@ class FireBaseData @Inject constructor() {
 
     /**
      * добавляем блоггера в Firebase
-     * @param credential авторизационные данные для входа в Firebase
+     * @param firebaseUser авторизационные данные пользователя
      */
-    fun authUser(credential: AuthCredential) {
-        Firebase.auth.signInWithCredential(credential)
-            .onSuccessTask { authResult ->
-                val user = authResult.user!!
-                val userData = mapOf(
-                    "uid" to user.uid,
-                    "name" to user.displayName,
-                    "email" to user.email,
-                    "photoUrl" to user.photoUrl?.toString(),
-                    "locations" to 0,
-                    "videos" to 0,
-                )
-                //добавляем данные в базу
-                Firebase.firestore.collection("bloggers").document(user.uid).set(userData)
-            }
-    }
+    override fun createUser(firebaseUser: FirebaseUser){
+            val user: FirebaseUser = firebaseUser
+            val userData = mapOf(
+                "uid" to user.uid,
+                "name" to user.displayName,
+                "email" to user.email,
+                "photoUrl" to user.photoUrl?.toString(),
+                "locations" to 0,
+                "videos" to 0,
+            )
+            //добавляем данные в базу
+            Firebase.firestore.collection("bloggers").document(user.uid).set(userData)
+        }
 
     /**
      * добавляем информацию о видео в Firebase
@@ -79,7 +74,7 @@ class FireBaseData @Inject constructor() {
      * @param startTS время начала записи видео
      * @param endTS время окончания записи видео
      */
-    fun updateVideo(user: FirebaseUser, video: Video, startTS: Timestamp, endTS: Timestamp) {
+    override fun updateVideo(user: FirebaseUser, video: Video, startTS: Timestamp, endTS: Timestamp) {
 
         val videoId = video.id
 
@@ -112,7 +107,7 @@ class FireBaseData @Inject constructor() {
      * Запрашиваем всех пользователей из Firebase
      * @return Список Пользователей в формате Firebase [BloggerFirebase]
      */
-    suspend fun loadUsers(): List<BloggerFirebase> = suspendCoroutine { continuation ->
+    override suspend fun loadUsers(): List<BloggerFirebase> = suspendCoroutine { continuation ->
         Firebase.firestore.collection("bloggers").get().addOnCompleteListener { task ->
             task.result?.let {
                 continuation.resume(it.toObjects(BloggerFirebase::class.java))
@@ -129,7 +124,7 @@ class FireBaseData @Inject constructor() {
      * @param userId выбранный пользователь
      * @return Список Видео в формате Firebase [FirebaseVideo]
      */
-    suspend fun loadVideos(userId: String): List<FirebaseVideo> = suspendCoroutine { continuation ->
+    override suspend fun loadVideos(userId: String): List<FirebaseVideo> = suspendCoroutine { continuation ->
         Firebase.firestore.collection("bloggers").document(userId)
             .collection("videos")
             .orderBy("start", Query.Direction.DESCENDING)
@@ -152,7 +147,7 @@ class FireBaseData @Inject constructor() {
      * @param end конечная точка времени
      * @return Список Локаций в формате Firebase [FirebaseLocation]
      */
-    suspend fun loadLocations(userId: String, start: Date, end: Date): List<FirebaseLocation> =
+    override suspend fun loadLocations(userId: String, start: Date, end: Date): List<FirebaseLocation> =
         suspendCoroutine { continuation ->
             Firebase.firestore.collection("bloggers").document(userId)
                 .collection("locations")

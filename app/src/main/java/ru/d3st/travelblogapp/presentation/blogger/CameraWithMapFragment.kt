@@ -58,6 +58,9 @@ private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
 @AndroidEntryPoint
 class CameraWithMapFragment : Fragment() {
 
+    //Пользователь
+    private var currentUser: FirebaseUser? = null
+
 
     //определение координат пользователя
     private val fusedLocationClient: FusedLocationProviderClient by lazy {
@@ -85,12 +88,12 @@ class CameraWithMapFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val currentUser = Firebase.auth.currentUser
+        currentUser = Firebase.auth.currentUser
         //проверям залогинен ли пользователь
         if (currentUser == null) {
             navigateToStartScreen()
         } else {
-            showSnackBar("You are logged in as ${currentUser.displayName}")
+            showSnackBar("You are logged in as ${currentUser?.displayName}")
         }
 
         initYoutubeSettings(currentUser)
@@ -260,7 +263,9 @@ class CameraWithMapFragment : Fragment() {
                 override fun onVideoSaved(outputFileResults: VideoCapture.OutputFileResults) {
                     Timber.tag(LOG_TAG).d("Video saved succeeded: %s", Uri.fromFile(videoFile))
                     val endTS = Timestamp.now()
-                    viewModel.uploadVideo(youTube, videoFile, startTS, endTS)
+                    if (currentUser != null) {
+                        viewModel.uploadVideo(youTube, videoFile, startTS, endTS, currentUser!!)
+                    }
                 }
 
                 override fun onError(videoCaptureError: Int, message: String, cause: Throwable?) {
@@ -344,7 +349,7 @@ class CameraWithMapFragment : Fragment() {
         )
 
         //сохраняем в базу данных
-        viewModel.addLocation(location)
+        viewModel.addLocation(location, currentUser)
     }
 
     /**
@@ -370,7 +375,7 @@ class CameraWithMapFragment : Fragment() {
         //заносим последнее местоположение в базу
         viewLifecycleOwner.lifecycleScope.launch {
             val location = fusedLocationClient.currentLocation()
-            viewModel.addLocation(location)
+            viewModel.addLocation(location, currentUser)
         }
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }

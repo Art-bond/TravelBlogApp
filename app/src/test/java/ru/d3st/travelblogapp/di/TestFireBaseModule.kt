@@ -2,21 +2,24 @@ package ru.d3st.travelblogapp.di
 
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import ru.d3st.travelblogapp.data.firebase.FireBaseData
+import dagger.hilt.testing.TestInstallIn
 import ru.d3st.travelblogapp.data.firebase.IFireBaseData
+import ru.d3st.travelblogapp.data.repository.FakeFireBaseData
 import javax.inject.Singleton
 
 
 @Module
-@InstallIn(SingletonComponent::class)
-object FireBaseModule {
+@TestInstallIn(
+    components = [SingletonComponent::class],
+    replaces = [FireBaseModule::class]
+)
+object TestFireBaseModule {
 
     @Singleton
     @Provides
     fun provideFirebaseData(): IFireBaseData{
-        return FireBaseData()
+        return FakeFireBaseData()
     }
 }
 

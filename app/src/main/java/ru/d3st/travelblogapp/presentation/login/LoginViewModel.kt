@@ -2,6 +2,9 @@ package ru.d3st.travelblogapp.presentation.login
 
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ru.d3st.travelblogapp.data.repository.BloggersRepository
 import javax.inject.Inject
@@ -12,9 +15,15 @@ class LoginViewModel @Inject constructor(private val bloggersRepository: Blogger
     /**
      * Отправляем данные о пользователе в Firebase через [BloggersRepository]
      */
-    fun authUser(credential: AuthCredential) {
-        bloggersRepository.authUser(credential)
+    fun createUser(credential: AuthCredential) {
+        Firebase.auth.signInWithCredential(credential)
+            .addOnSuccessListener { authResult ->
+                val user: FirebaseUser = authResult.user!!
+                 bloggersRepository.authUser(user)
+            }
     }
+
+
 
 
 }

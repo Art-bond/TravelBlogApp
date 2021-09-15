@@ -1,20 +1,28 @@
 {
   "project_info": {
-    "project_number": "67721459597",
-    "project_id": "travelblog-two",
-    "storage_bucket": "travelblog-two.appspot.com"
+    "project_number": "431114086223",
+    "project_id": "travel-ublog",
+    "storage_bucket": "travel-ublog.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:67721459597:android:2e0f19dac4d04eaba9efc4",
+        "mobilesdk_app_id": "1:431114086223:android:291daa0088514286c6473a",
         "android_client_info": {
           "package_name": "ru.d3st.travelblogapp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "67721459597-239d6ahkvlr5a1ljutforb7qsj0di9pu.apps.googleusercontent.com",
+          "client_id": "431114086223-b6rifhv2rnpfseseapf0d9gcq620cmbj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ru.d3st.travelblogapp",
+            "certificate_hash": "40784d664fadf64ce9a18088b047261701fcf4ec"
+          }
+        },
+        {
+          "client_id": "431114086223-viiahb7od8hh75p4ksgjq3p2us5kc686.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "ru.d3st.travelblogapp",
@@ -22,20 +30,20 @@
           }
         },
         {
-          "client_id": "67721459597-kagsedk95a6sl9l98opgtuoppmoni8ot.apps.googleusercontent.com",
+          "client_id": "431114086223-c4jtge61r4d7f80v6ddqu4kf2l4gn62r.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAVTd9HI_8eX-mhp9ii68NNWribeeQkbek"
+          "current_key": "AIzaSyAe0oHIclNjb9icM-91q2MBaXkK4I_8u-g"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "67721459597-kagsedk95a6sl9l98opgtuoppmoni8ot.apps.googleusercontent.com",
+              "client_id": "431114086223-c4jtge61r4d7f80v6ddqu4kf2l4gn62r.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
@@ -44,35 +52,35 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:67721459597:android:c36f6c215b4fcf3fa9efc4",
+        "mobilesdk_app_id": "1:431114086223:android:3735e220e4a15e75c6473a",
         "android_client_info": {
           "package_name": "ru.d3st.travelblogapp.debug"
         }
       },
       "oauth_client": [
         {
-          "client_id": "67721459597-11g2r052p5cesmer1s6rb8i2r7irapc5.apps.googleusercontent.com",
+          "client_id": "431114086223-8fklvk7i93fnkcfvlcbkmgk8cv8tf1bb.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "ru.d3st.travelblogapp.debug",
-            "certificate_hash": "2680c90e3b6bb8c92d6aec997cd37514d57aecce"
+            "certificate_hash": "40784d664fadf64ce9a18088b047261701fcf4ec"
           }
         },
         {
-          "client_id": "67721459597-kagsedk95a6sl9l98opgtuoppmoni8ot.apps.googleusercontent.com",
+          "client_id": "431114086223-c4jtge61r4d7f80v6ddqu4kf2l4gn62r.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAVTd9HI_8eX-mhp9ii68NNWribeeQkbek"
+          "current_key": "AIzaSyAe0oHIclNjb9icM-91q2MBaXkK4I_8u-g"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "67721459597-kagsedk95a6sl9l98opgtuoppmoni8ot.apps.googleusercontent.com",
+              "client_id": "431114086223-c4jtge61r4d7f80v6ddqu4kf2l4gn62r.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

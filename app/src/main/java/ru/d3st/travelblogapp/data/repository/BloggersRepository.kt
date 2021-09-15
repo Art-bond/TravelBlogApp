@@ -3,16 +3,15 @@ package ru.d3st.travelblogapp.data.repository
 import android.location.Location
 import com.google.api.services.youtube.model.Video
 import com.google.firebase.Timestamp
-import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.GeoPoint
-import ru.d3st.travelblogapp.data.firebase.FireBaseData
+import ru.d3st.travelblogapp.data.firebase.IFireBaseData
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class BloggersRepository @Inject constructor(private val fireBaseData: FireBaseData) {
+class BloggersRepository @Inject constructor(private val fireBaseData: IFireBaseData) {
 
     /**
      * добавляем локацию в Firebase
@@ -28,11 +27,10 @@ class BloggersRepository @Inject constructor(private val fireBaseData: FireBaseD
 
     /**
      * добавляем блоггера в Firebase
-     * @param credential авторизационные данные для входа в Firebase
+     * @param firebaseUser авторизационные данные пользователя для входа в Firebase
      */
-    fun authUser(credential: AuthCredential) {
-        fireBaseData.authUser(credential)
-
+    fun authUser(firebaseUser: FirebaseUser){
+        return fireBaseData.createUser(firebaseUser)
     }
 
     /**

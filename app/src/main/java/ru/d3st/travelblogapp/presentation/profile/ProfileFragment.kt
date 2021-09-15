@@ -42,7 +42,7 @@ class ProfileFragment : Fragment() {
         }
         binding.videoList.adapter = adapter
 
-        viewModel.selectedBloggerDomain.observe(viewLifecycleOwner) { user -> bindUser(user) }
+        viewModel.selectedUser.observe(viewLifecycleOwner) { user -> bindUser(user) }
         viewModel.allVideo.observe(viewLifecycleOwner) { videos -> adapter.submitList(videos) }
 
         return binding.root

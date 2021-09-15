@@ -11,12 +11,12 @@ import com.google.api.services.youtube.model.Video
 import com.google.api.services.youtube.model.VideoSnippet
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
+import org.jetbrains.annotations.TestOnly
 import ru.d3st.travelblogapp.data.repository.BloggersRepository
+import ru.d3st.travelblogapp.di.IoDispatcher
 import ru.d3st.travelblogapp.utils.Status
 import timber.log.Timber
 import java.io.BufferedInputStream
@@ -26,12 +26,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CameraWithMapViewModel @Inject constructor(
-    private val bloggersRepository: BloggersRepository
+    private val bloggersRepository: BloggersRepository,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+
 ) : ViewModel() {
-
-
-    private val _currentUser = MutableLiveData<FirebaseUser>()
-    val currentUser: LiveData<FirebaseUser> get() = _currentUser
 
     private val _statusRecording = MutableLiveData(false)
     val statusRecording: LiveData<Boolean> get() = _statusRecording
@@ -41,20 +39,8 @@ class CameraWithMapViewModel @Inject constructor(
 
     private val _statusLoading = MutableLiveData<Status>()
     val statusLoading: LiveData<Status>
-    get() = _statusLoading
+        get() = _statusLoading
 
-    init {
-        getCurrentUser()
-    }
-
-    /**
-     * Получаем залогиненного пользователя
-     */
-    private fun getCurrentUser() {
-        viewModelScope.launch {
-            _currentUser.value = Firebase.auth.currentUser
-        }
-    }
 
     /**
      * Обновление состояние записи на ЗАПИСЬ
@@ -74,9 +60,9 @@ class CameraWithMapViewModel @Inject constructor(
      * Добавляем данные о новом местоположении в репозиторий
      * @param location данные о местоположении
      */
-    fun addLocation(location: Location) {
-        if (_currentUser.value != null) {
-            bloggersRepository.addLocation(location, _currentUser.value!!, statusRecording.value ?: false)
+    fun addLocation(location: Location, user: FirebaseUser?) {
+        if (user != null) {
+            bloggersRepository.addLocation(location, user, statusRecording.value ?: false)
         } else {
             Timber.e("User is null, we cannot find location")
             _errorMessage.value = "User is not authorised"
@@ -84,17 +70,6 @@ class CameraWithMapViewModel @Inject constructor(
         }
     }
 
-    private fun updateVideo(video: Video, startTS: Timestamp, endTS: Timestamp) {
-        val videoId = video.id
-
-        if (_currentUser.value != null) {
-            bloggersRepository.updateVideo(_currentUser.value!!, video, startTS, endTS)
-        } else {
-            Timber.e("User is null, we cannot upload info about video: $videoId")
-            _errorMessage.value = "User is not authorised"
-
-        }
-    }
 
     /**
      * Метод настраивает загрузку видео в сервис Youtube
@@ -103,43 +78,89 @@ class CameraWithMapViewModel @Inject constructor(
      * @param startTS время начала видео
      * @param endTS время окончания видео
      */
-    fun uploadVideo(youTube: YouTube, file: File, startTS: Timestamp, endTS: Timestamp) {
+    fun uploadVideo(
+        youTube: YouTube,
+        file: File,
+        startTS: Timestamp,
+        endTS: Timestamp,
+        user: FirebaseUser
+    ) {
         _statusLoading.postValue(Status.LOADING)
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
+
+            val stream = fileToStream(file)
+
             uploadYoutubeVideo(
                 youTube,
-                InputStreamContent(
-                    "application/octet-stream",
-                    BufferedInputStream(FileInputStream(file))
-                ).setLength(file.length()), startTS, endTS
+                stream,
+                startTS,
+                endTS,
+                user
             )
         }
     }
+
+    private fun fileToStream(file: File): InputStreamContent =
+        InputStreamContent(
+            "application/octet-stream",
+            BufferedInputStream(FileInputStream(file))
+        ).setLength(file.length())
+
+
+
 
     private fun uploadYoutubeVideo(
         youTube: YouTube,
         mediaContent: InputStreamContent,
         startTS: Timestamp,
-        endTS: Timestamp
+        endTS: Timestamp,
+        user: FirebaseUser
     ) = try {
-
-        val date = startTS.toDate()
 
         val video = Video()
         val snippet = VideoSnippet()
-        snippet.description = "TravelBlog video $date"
-        snippet.title = "TravelBlog video test day 3"
+        snippet.channelTitle = "Travel Blog"
+        snippet.description = "TravelBlog video day 10"
+        snippet.title = "TravelBlog video day 10"
         video.snippet = snippet
 
         val response: Video =
             youTube.videos().insert(listOf("id,snippet,statistics"), video, mediaContent).execute()
         Timber.i("Video uploaded on youtube: $response")
-        updateVideo(response, startTS, endTS)
+        updateVideo(response, startTS, endTS, user)
         _statusLoading.postValue(Status.SUCCESS)
     } catch (e: Exception) {
         Timber.e(e, "Failed to upload youtube video")
         _statusLoading.postValue(Status.FAILURE)
         _errorMessage.postValue(e.message)
+    }
+
+    private fun updateVideo(
+        video: Video,
+        startTS: Timestamp,
+        endTS: Timestamp,
+        user: FirebaseUser
+    ) {
+        bloggersRepository.updateVideo(user, video, startTS, endTS)
+
+    }
+
+    @TestOnly
+    fun testUploadYoutubeVideo(
+        youTube: YouTube,
+        mediaContent: InputStreamContent,
+        startTS: Timestamp,
+        endTS: Timestamp,
+        user: FirebaseUser
+    ) {
+        uploadYoutubeVideo(
+            youTube,
+            mediaContent,
+            startTS,
+            endTS,
+            user
+        )
+
     }
 }
 

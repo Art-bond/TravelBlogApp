@@ -4,6 +4,7 @@ import androidx.lifecycle.*
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.launch
+import org.jetbrains.annotations.TestOnly
 import ru.d3st.travelblogapp.data.repository.SpectatorRepository
 import ru.d3st.travelblogapp.model.domain.BloggerDomain
 import ru.d3st.travelblogapp.model.domain.VideoDomain
@@ -14,7 +15,7 @@ class ProfileViewModel @AssistedInject constructor(
 ) : ViewModel() {
 
     private val _selectedUser = MutableLiveData<BloggerDomain>()
-    val selectedBloggerDomain: LiveData<BloggerDomain> get() = _selectedUser
+    val selectedUser: LiveData<BloggerDomain> get() = _selectedUser
 
     private val _allVideo = MutableLiveData<List<VideoDomain>>()
     val allVideo: LiveData<List<VideoDomain>> get() = _allVideo
@@ -26,7 +27,7 @@ class ProfileViewModel @AssistedInject constructor(
 
     private fun getUserInfo() {
         viewModelScope.launch {
-            _selectedUser.value = repository.getBloggerList().first {
+            _selectedUser.value = repository.getBloggerList().firstOrNull() {
                 it.uid == userId
             }
         }
@@ -38,6 +39,19 @@ class ProfileViewModel @AssistedInject constructor(
 
         }
     }
+
+    @TestOnly
+    fun testBloggerInfo(){
+        //_selectedUser.value = repository.getBloggerList().firstOrNull()
+           getUserInfo()
+    }
+
+    @TestOnly
+     fun testVideos(){
+        //_allVideo.value = repository.getBloggerVideos(userId)
+        getUserVideos(userId)
+    }
+
     companion object {
         /**
          * Позволяем изпользовать [ProfileViewModelFactory] так как нам нужен ViewModel
