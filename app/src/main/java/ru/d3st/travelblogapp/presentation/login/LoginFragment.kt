@@ -35,32 +35,24 @@ class LoginFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
 
-    private var _binding: FragmentLoginBinding? = null
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
-    private val binding get() = _binding!!
-
-
     private val viewModel: LoginViewModel by viewModels()
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentLoginBinding.inflate(inflater, container, false)
+        val binding = FragmentLoginBinding.inflate(inflater, container, false)
+
+        binding.viewmodel = viewModel
+        //для обновления экрана
+        binding.lifecycleOwner = this
+
 
         initGoogleSignIn()
 
         auth = Firebase.auth
-
-        return binding.root
-    }
-
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
         binding.btnBlogger.setOnClickListener {
             signInLauncher.launch(googleSignInClient.signInIntent)
@@ -69,15 +61,20 @@ class LoginFragment : Fragment() {
             goToSpectator()
         }
 
+
+        return binding.root
+    }
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+
         val currentUser = auth.currentUser
         updateUI(currentUser)
 
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
 
     private fun initGoogleSignIn() {
         // Configure Google Sign In
@@ -101,7 +98,6 @@ class LoginFragment : Fragment() {
                     Timber.d("signInWithCredential:success")
                     val user = auth.currentUser
                     updateUI(user)
-                    viewModel.createUser(credential)
                     //Проверка есть ли пользователь в базе
                     val creationTimestamp = user?.metadata?.creationTimestamp
                     val lastSignInTimestamp = user?.metadata?.lastSignInTimestamp

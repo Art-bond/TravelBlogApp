@@ -120,8 +120,8 @@ class CameraWithMapViewModel @Inject constructor(
         val video = Video()
         val snippet = VideoSnippet()
         snippet.channelTitle = "Travel Blog"
-        snippet.description = "TravelBlog video day 10"
-        snippet.title = "TravelBlog video day 10"
+        snippet.description = "TravelBlog video ${startTS.toDate()}"
+        snippet.title = "TravelBlog video test"
         video.snippet = snippet
 
         val response: Video =

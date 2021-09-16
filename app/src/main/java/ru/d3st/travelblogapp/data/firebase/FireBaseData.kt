@@ -37,7 +37,7 @@ class FireBaseData @Inject constructor() : IFireBaseData {
 
         Firebase.firestore
             .collection("bloggers").document(user.uid)
-            .collection("locations").document()
+            .collection("locations").document(time.toString())
             .set(locationData)
 
         Firebase.firestore

@@ -7,7 +7,8 @@
 
     <string name="permission_not_granted">App requires access to camera, microphone, location.</string>
 
-    <string name="videos_count">%2$d Videos.</string>
+    <string name="videos_count">%d videos.</string>
+    <string name="runtime_min">%s sec.</string>
     <string name="travel_blog_app">TRAVEL BLOG APP</string>
     <string name="as_spectator">as Spectator</string>
     <string name="as_blogger">as Blogger</string>

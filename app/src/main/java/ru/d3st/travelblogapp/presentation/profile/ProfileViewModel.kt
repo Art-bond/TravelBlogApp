@@ -15,10 +15,12 @@ class ProfileViewModel @AssistedInject constructor(
 ) : ViewModel() {
 
     private val _selectedUser = MutableLiveData<BloggerDomain>()
-    val selectedUser: LiveData<BloggerDomain> get() = _selectedUser
+    val selectedUser: LiveData<BloggerDomain>
+        get() = _selectedUser
 
     private val _allVideo = MutableLiveData<List<VideoDomain>>()
-    val allVideo: LiveData<List<VideoDomain>> get() = _allVideo
+    val allVideo: LiveData<List<VideoDomain>>
+        get() = _allVideo
 
     init {
         getUserInfo()
@@ -27,27 +29,31 @@ class ProfileViewModel @AssistedInject constructor(
 
     private fun getUserInfo() {
         viewModelScope.launch {
-            _selectedUser.value = repository.getBloggerList().firstOrNull() {
+            val user = repository.getBloggerList().firstOrNull() {
                 it.uid == userId
             }
+            user?.let {
+                _selectedUser.value = it
+            }
+
         }
     }
+
 
     private fun getUserVideos(userId: String) {
         viewModelScope.launch {
-           _allVideo.value = repository.getBloggerVideos(userId)
+            _allVideo.value = repository.getBloggerVideos(userId)
 
         }
     }
 
     @TestOnly
-    fun testBloggerInfo(){
-        //_selectedUser.value = repository.getBloggerList().firstOrNull()
-           getUserInfo()
+    fun testBloggerInfo() {
+        getUserInfo()
     }
 
     @TestOnly
-     fun testVideos(){
+    fun testVideos() {
         //_allVideo.value = repository.getBloggerVideos(userId)
         getUserVideos(userId)
     }

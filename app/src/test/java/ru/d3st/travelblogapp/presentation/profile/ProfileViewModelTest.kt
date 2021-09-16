@@ -70,14 +70,13 @@ class ProfileViewModelTest {
     @Test
     fun blogger_info_success() = mainCoroutineRule.runBlockingTest {
         //given
-        coEvery { repository.getBloggerList() } returns bloggers
+        coEvery { repository.getBloggerList()} returns bloggers
 
         // Then
         viewModel.testBloggerInfo()
 
         //Состояние LiveData должно менятся по данной схеме
         verifySequence {
-            testUser.onChanged(null)
             testUser.onChanged(bloggers.first())
         }
 
