@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import dagger.hilt.EntryPoint
 import dagger.hilt.android.AndroidEntryPoint
 import ru.d3st.travelblogapp.databinding.FragmentOverviewBinding
 
@@ -22,7 +21,10 @@ class OverviewFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        val binding = FragmentOverviewBinding.inflate(inflater)
+        val binding = FragmentOverviewBinding.inflate(inflater, container, false)
+        binding.viewmodel = viewModel
+        //для обновления экрана
+        binding.lifecycleOwner = this
 
         val adapter = OverviewAdapter { user ->
 

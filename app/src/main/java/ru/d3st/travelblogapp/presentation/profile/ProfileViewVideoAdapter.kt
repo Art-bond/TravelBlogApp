@@ -3,30 +3,29 @@ package ru.d3st.travelblogapp.presentation.profile
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import ru.d3st.travelblogapp.R
+import ru.d3st.travelblogapp.databinding.ListBloggerItemVideoBinding
 import ru.d3st.travelblogapp.model.domain.VideoDomain
 
 class ProfileViewVideoAdapter(
     private val onVideoClick: (VideoDomain) -> Unit
 ) : ListAdapter<VideoDomain, ProfileViewVideoAdapter.ProfileVideoViewHolder>(VIDEO_COMPARATOR) {
 
-    class ProfileVideoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val youtubePlayer: YouTubePlayerView = itemView.findViewById(R.id.youtube_player_item)
-        private val timeTextView: TextView = itemView.findViewById(R.id.tv_time)
+    class ProfileVideoViewHolder(private val binding: ListBloggerItemVideoBinding) : RecyclerView.ViewHolder(binding.root) {
+/*        private val youtubePlayer: YouTubePlayerView = itemView.findViewById(R.id.youtube_player_item)
+        private val timeTextView: TextView = itemView.findViewById(R.id.tv_time)*/
         val content: View = itemView.findViewById(R.id.content)
 
         fun bind(video: VideoDomain) {
-            timeTextView.text = video.start.toString()
-            youtubePlayer.getPlayerUiController().showFullscreenButton(true)
+            binding.video = video
+            binding.youtubePlayerItem.getPlayerUiController().showFullscreenButton(true)
 
-            youtubePlayer.addYouTubePlayerListener(
+            binding.youtubePlayerItem.addYouTubePlayerListener(
                 object : AbstractYouTubePlayerListener() {
                     override fun onReady(youTubePlayer: YouTubePlayer) {
 
@@ -39,13 +38,15 @@ class ProfileViewVideoAdapter(
                         youTubePlayer.cueVideo(videoId, 0f)
                     }
                 })
+            binding.executePendingBindings()
         }
 
         companion object {
             fun create(parent: ViewGroup): ProfileVideoViewHolder {
-                val view: View = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.list_blogger_item_video, parent, false)
-                return ProfileVideoViewHolder(view)
+                val layoutInflater = LayoutInflater.from(parent.context)
+                        val binding = ListBloggerItemVideoBinding
+                    .inflate(layoutInflater, parent, false)
+                return ProfileVideoViewHolder(binding)
             }
         }
     }

@@ -50,9 +50,6 @@ class ShowFragment : Fragment() {
         LocationServices.getFusedLocationProviderClient(requireActivity())
     }
 
-    private lateinit var binding: FragmentShowBinding
-
-
 
     @SuppressLint("MissingPermission")
     private fun getMyLocation(googleMap: GoogleMap) {
@@ -72,7 +69,12 @@ class ShowFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         var player: YouTubePlayer? = null
-        binding = FragmentShowBinding.inflate(inflater, container, false)
+
+        val binding = FragmentShowBinding.inflate(inflater, container, false)
+
+        binding.viewmodel = viewModel
+        //для обновления экрана
+        binding.lifecycleOwner = this
 
         binding.youtubePlayer.getPlayerUiController().showFullscreenButton(true)
 
@@ -119,11 +121,6 @@ class ShowFragment : Fragment() {
             return@setOnMarkerClickListener viewModel.selectLocation(marker.position)
         }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            //Начальные параметры
-            val homeLatLng = fusedLocationClient.currentLatLng()
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng, 15f))
-        }
 
         //применить стиль из папки Raw
         setMapStyle(googleMap)
@@ -145,7 +142,7 @@ class ShowFragment : Fragment() {
                 val position = MarkerOptions().position(latLng)
 
                 googleMap.addMarker(position)
-                googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng))
+                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
 
             }
         }

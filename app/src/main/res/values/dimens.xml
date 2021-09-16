@@ -17,4 +17,5 @@
     <dimen name="btn_corner_radius">10dp</dimen>
     <dimen name="btn_login_height">72dp</dimen>
     <dimen name="margin_quadro">64dp</dimen>
+    <dimen name="loading_size">100dp</dimen>
 </resources>

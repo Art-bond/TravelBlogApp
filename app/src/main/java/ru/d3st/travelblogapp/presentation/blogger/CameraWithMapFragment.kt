@@ -126,6 +126,10 @@ class CameraWithMapFragment : Fragment() {
     ): View {
         binding = FragmentCameraMapBinding.inflate(inflater, container, false)
 
+        binding.viewmodel = viewModel
+        //для обновления экрана
+        binding.lifecycleOwner = this
+
         initCamera()
 
         // Настраиваем захват видер
@@ -147,16 +151,6 @@ class CameraWithMapFragment : Fragment() {
                 viewModel.stopRecord()
             }
         }
-        //привязываем состояние записи
-/*        viewModel.statusRecording.observe(viewLifecycleOwner,{
-            if (it){
-                startRecording()
-                startLocationUpdates()
-            } else{
-                stopLocationUpdates()
-                stopRecording()
-            }
-        })*/
 
         viewModel.statusLoading.observe(viewLifecycleOwner, {
             when (it) {
@@ -214,7 +208,7 @@ class CameraWithMapFragment : Fragment() {
     private fun initCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
 
-        cameraProviderFuture.addListener(Runnable {
+        cameraProviderFuture.addListener( {
             // Used to bind the lifecycle of cameras to the lifecycle owner
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
 
