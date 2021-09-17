@@ -1,4 +1,4 @@
-package ru.d3st.travelblogapp.data.repository
+package ru.d3st.travelblogapp.domain.repository
 
 import com.google.api.services.youtube.model.Video
 import com.google.firebase.Timestamp
@@ -8,6 +8,7 @@ import ru.d3st.travelblogapp.data.firebase.IFireBaseData
 import ru.d3st.travelblogapp.model.firebase.BloggerFirebase
 import ru.d3st.travelblogapp.model.firebase.FirebaseLocation
 import ru.d3st.travelblogapp.model.firebase.FirebaseVideo
+import ru.d3st.travelblogapp.utils.Resource
 import java.util.*
 
 class FakeFireBaseData : IFireBaseData {
@@ -69,7 +70,9 @@ class FakeFireBaseData : IFireBaseData {
         userId: String,
         start: Date,
         end: Date
-    ): List<FirebaseLocation> {
+    ): Resource<List<FirebaseLocation>> {
         TODO("Not yet implemented")
     }
+
+
 }

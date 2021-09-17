@@ -1,4 +1,4 @@
-package ru.d3st.travelblogapp.data.repository
+package ru.d3st.travelblogapp.domain.repository
 
 import android.location.Location
 import com.google.api.services.youtube.model.Video

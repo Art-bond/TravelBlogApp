@@ -19,6 +19,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import dagger.hilt.android.AndroidEntryPoint
@@ -100,6 +101,10 @@ class ShowFragment : Fragment() {
         //при клике на точку маршрута -> перемещение в этот момент видео, где это было снято
         viewModel.seekPosition.observe(viewLifecycleOwner) { position -> player?.seekTo(position) }
 
+        viewModel.networkError.observe(viewLifecycleOwner,{
+            showSnackBar(it)
+        })
+
         return binding.root
     }
 
@@ -159,6 +164,16 @@ class ShowFragment : Fragment() {
             }
         } catch (e: Resources.NotFoundException) {
             Timber.e(e, "Can't find style. Error: ")
+        }
+    }
+
+    private fun showSnackBar(message: String?) {
+        if (message != null) {
+            Snackbar.make(
+                requireActivity().findViewById(android.R.id.content),
+                message,
+                Snackbar.LENGTH_LONG
+            ).show()
         }
     }
 

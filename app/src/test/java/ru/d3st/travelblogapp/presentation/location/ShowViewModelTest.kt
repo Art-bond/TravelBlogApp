@@ -11,7 +11,7 @@ import org.junit.Rule
 import org.junit.Test
 import ru.d3st.travelblogapp.MainCoroutineRule
 import ru.d3st.travelblogapp.TestData
-import ru.d3st.travelblogapp.data.repository.SpectatorRepository
+import ru.d3st.travelblogapp.domain.repository.SpectatorRepository
 import ru.d3st.travelblogapp.model.domain.LocationDomain
 import ru.d3st.travelblogapp.model.domain.VideoDomain
 
@@ -93,7 +93,6 @@ class ShowViewModelTest {
         viewModel.selectLocation(latLng)
 
         verifySequence {
-            testLocations.onChanged(emptyList())
             testLocations.onChanged(locations)
             testSeekPosition.onChanged(0.03f)
         }

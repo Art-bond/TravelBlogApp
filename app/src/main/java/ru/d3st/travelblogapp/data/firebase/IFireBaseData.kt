@@ -7,6 +7,7 @@ import com.google.firebase.firestore.GeoPoint
 import ru.d3st.travelblogapp.model.firebase.BloggerFirebase
 import ru.d3st.travelblogapp.model.firebase.FirebaseLocation
 import ru.d3st.travelblogapp.model.firebase.FirebaseVideo
+import ru.d3st.travelblogapp.utils.Resource
 import java.util.*
 
 interface IFireBaseData {
@@ -54,6 +55,6 @@ interface IFireBaseData {
      * @param end конечная точка времени
      * @return Список Локаций в формате Firebase [FirebaseLocation]
      */
-    suspend fun loadLocations(userId: String, start: Date, end: Date): List<FirebaseLocation>
+    suspend fun loadLocations(userId: String, start: Date, end: Date): Resource<List<FirebaseLocation>>
 
 }

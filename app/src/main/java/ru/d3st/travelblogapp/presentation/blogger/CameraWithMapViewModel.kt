@@ -15,8 +15,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.TestOnly
-import ru.d3st.travelblogapp.data.repository.BloggersRepository
 import ru.d3st.travelblogapp.di.IoDispatcher
+import ru.d3st.travelblogapp.domain.repository.BloggersRepository
 import ru.d3st.travelblogapp.utils.Status
 import timber.log.Timber
 import java.io.BufferedInputStream

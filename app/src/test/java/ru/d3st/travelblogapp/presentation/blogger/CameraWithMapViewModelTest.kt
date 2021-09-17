@@ -18,7 +18,7 @@ import org.junit.Rule
 import org.junit.Test
 import ru.d3st.travelblogapp.MainCoroutineRule
 import ru.d3st.travelblogapp.TestData
-import ru.d3st.travelblogapp.data.repository.BloggersRepository
+import ru.d3st.travelblogapp.domain.repository.BloggersRepository
 import ru.d3st.travelblogapp.utils.Status
 import java.io.File
 

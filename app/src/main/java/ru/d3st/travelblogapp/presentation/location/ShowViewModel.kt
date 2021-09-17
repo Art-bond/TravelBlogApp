@@ -6,9 +6,11 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.TestOnly
-import ru.d3st.travelblogapp.data.repository.SpectatorRepository
+import ru.d3st.travelblogapp.domain.repository.SpectatorRepository
 import ru.d3st.travelblogapp.model.domain.LocationDomain
 import ru.d3st.travelblogapp.model.domain.VideoDomain
+import ru.d3st.travelblogapp.utils.Resource
+import ru.d3st.travelblogapp.utils.Status
 import timber.log.Timber
 
 class ShowViewModel @AssistedInject constructor(
@@ -26,6 +28,14 @@ class ShowViewModel @AssistedInject constructor(
     private val _seekPosition = MutableLiveData<Float>()
     val seekPosition: LiveData<Float> get() = _seekPosition
 
+    private val _networkLoading = MutableLiveData<Status>()
+    val networkLoading: LiveData<Status>
+        get() = _networkLoading
+
+    private val _networkError = MutableLiveData<String>()
+    val networkError: LiveData<String>
+        get() = _networkError
+
     init {
         getTravel()
     }
@@ -34,9 +44,23 @@ class ShowViewModel @AssistedInject constructor(
         viewModelScope.launch {
             val video = videoDomain
             _selectedVideo.value = video
-            val locations = loadLocation(video)
-            Timber.i("find ${locations.size} locations")
-            _locations.value = locations
+            when(val locations = loadLocation(video)){
+                is Resource.Error -> {
+                    _networkError.value = locations.message ?: "Unknown error"
+                    _networkLoading.value = Status.FAILURE
+                    Timber.e("find locations error ${locations.message}")
+
+                }
+                is Resource.Loading -> {
+                    _networkLoading.value = Status.LOADING
+                }
+                is Resource.Success -> {
+                    _locations.value = locations.data?: emptyList()
+                    _networkLoading.value = Status.SUCCESS
+                    Timber.i("find ${locations.data?.size} locations")
+
+                }
+            }
         }
     }
 
@@ -65,11 +89,12 @@ class ShowViewModel @AssistedInject constructor(
     }
 
     @TestOnly
-    fun setLocation(locations: List<LocationDomain>){
+    fun setLocation(locations: List<LocationDomain>) {
         _locations.value = locations
     }
+
     @TestOnly
-    fun setSeekPosition(seekPosition: Float){
+    fun setSeekPosition(seekPosition: Float) {
         _seekPosition.value = seekPosition
     }
 

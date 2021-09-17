@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Looper
 import android.view.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
 import androidx.camera.core.VideoCapture
@@ -124,6 +125,8 @@ class CameraWithMapFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        (requireActivity() as AppCompatActivity).supportActionBar?.show()
+
         binding = FragmentCameraMapBinding.inflate(inflater, container, false)
 
         binding.viewmodel = viewModel
@@ -177,8 +180,6 @@ class CameraWithMapFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-/*        stopLocationUpdates()
-        stopRecording()*/
         cameraExecutor.shutdown()
     }
 

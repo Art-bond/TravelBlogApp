@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -29,6 +30,9 @@ import ru.d3st.travelblogapp.databinding.FragmentLoginBinding
 import ru.d3st.travelblogapp.utils.PERMISSIONS_REQUIRED
 import timber.log.Timber
 
+
+
+
 @AndroidEntryPoint
 class LoginFragment : Fragment() {
 
@@ -43,6 +47,8 @@ class LoginFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        (requireActivity() as AppCompatActivity).supportActionBar?.hide()
+
         val binding = FragmentLoginBinding.inflate(inflater, container, false)
 
         binding.viewmodel = viewModel
@@ -60,6 +66,7 @@ class LoginFragment : Fragment() {
         binding.btnUser.setOnClickListener {
             goToSpectator()
         }
+
 
 
         return binding.root

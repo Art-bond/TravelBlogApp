@@ -6,7 +6,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import ru.d3st.travelblogapp.data.repository.BloggersRepository
+import ru.d3st.travelblogapp.domain.repository.BloggersRepository
 import javax.inject.Inject
 
 @HiltViewModel

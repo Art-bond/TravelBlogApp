@@ -1,4 +1,4 @@
-package ru.d3st.travelblogapp.data.repository
+package ru.d3st.travelblogapp.domain.repository
 
 import com.google.common.truth.Truth
 import io.mockk.MockKAnnotations
@@ -20,6 +20,7 @@ import ru.d3st.travelblogapp.model.domain.VideoDomain
 import ru.d3st.travelblogapp.model.firebase.BloggerFirebase
 import ru.d3st.travelblogapp.model.firebase.FirebaseLocation
 import ru.d3st.travelblogapp.model.firebase.FirebaseVideo
+import ru.d3st.travelblogapp.utils.Resource
 
 class SpectatorRepositoryTest {
 
@@ -93,9 +94,9 @@ class SpectatorRepositoryTest {
                 startDate,
                 endDate
             )
-        } returns testFirebaseLocations
+        } returns Resource.Success(testFirebaseLocations)
 
-        val actual = spectatorRepository.loadLocations(userId, startDate, endDate)
+        val actual = spectatorRepository.loadLocations(userId, startDate, endDate).data
 
         Truth.assertThat(actual).isEqualTo(testBloggerLocations)
         coVerify { firebaseData.loadLocations(userId, startDate, endDate) }
@@ -105,27 +106,22 @@ class SpectatorRepositoryTest {
     @Test
     fun loadLocationsFailure() = mainCoroutineRule.runBlockingTest {
 
-        val expectedException = Exception("Exceptions load locations")
 
         val userId = TestData.bloggers.first().uid
         val startDate = TestData.startDate
         val endDate = TestData.endDate
-        try {
-            coEvery {
-                firebaseData.loadLocations(
-                    userId,
-                    startDate,
-                    endDate
-                )
-            } throws Exception("Exceptions load locations")
-            spectatorRepository.loadLocations(userId, startDate, endDate)
+        coEvery {
+            firebaseData.loadLocations(
+                userId,
+                startDate,
+                endDate
+            )
+        } returns Resource.Error("Exceptions load locations")
+        val actual = spectatorRepository.loadLocations(userId, startDate, endDate)
 
-        } catch (ex: Exception) {
-
-            Truth.assertThat(ex.message).isEqualTo(expectedException.message)
-            coVerify { firebaseData.loadLocations(userId, startDate, endDate) }
-        }
-
-
+        Truth.assertThat(actual.message).isEqualTo("Exceptions load locations")
+        coVerify { firebaseData.loadLocations(userId, startDate, endDate) }
     }
+
+
 }

@@ -5,7 +5,7 @@ import dagger.Provides
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
 import ru.d3st.travelblogapp.data.firebase.IFireBaseData
-import ru.d3st.travelblogapp.data.repository.FakeFireBaseData
+import ru.d3st.travelblogapp.domain.repository.FakeFireBaseData
 import javax.inject.Singleton
 
 

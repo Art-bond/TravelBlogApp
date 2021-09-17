@@ -5,7 +5,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.TestOnly
-import ru.d3st.travelblogapp.data.repository.SpectatorRepository
+import ru.d3st.travelblogapp.domain.repository.SpectatorRepository
 import ru.d3st.travelblogapp.model.domain.BloggerDomain
 import ru.d3st.travelblogapp.model.domain.VideoDomain
 

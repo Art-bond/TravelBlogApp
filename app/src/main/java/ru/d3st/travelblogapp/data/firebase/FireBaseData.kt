@@ -11,6 +11,7 @@ import com.google.firebase.ktx.Firebase
 import ru.d3st.travelblogapp.model.firebase.BloggerFirebase
 import ru.d3st.travelblogapp.model.firebase.FirebaseLocation
 import ru.d3st.travelblogapp.model.firebase.FirebaseVideo
+import ru.d3st.travelblogapp.utils.Resource
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
@@ -27,7 +28,12 @@ class FireBaseData @Inject constructor() : IFireBaseData {
      * @param time время внесения данной геопозиции
      * @param status статус записи видео (записывает или нет)
      */
-    override fun addLocation(user: FirebaseUser, geoPosition: GeoPoint, time: Date, status: Boolean) {
+    override fun addLocation(
+        user: FirebaseUser,
+        geoPosition: GeoPoint,
+        time: Date,
+        status: Boolean
+    ) {
 
         val locationData = mapOf(
             "geoPosition" to geoPosition,
@@ -53,19 +59,19 @@ class FireBaseData @Inject constructor() : IFireBaseData {
      * добавляем блоггера в Firebase
      * @param firebaseUser авторизационные данные пользователя
      */
-    override fun createUser(firebaseUser: FirebaseUser){
-            val user: FirebaseUser = firebaseUser
-            val userData = mapOf(
-                "uid" to user.uid,
-                "name" to user.displayName,
-                "email" to user.email,
-                "photoUrl" to user.photoUrl?.toString(),
-                "locations" to 0,
-                "videos" to 0,
-            )
-            //добавляем данные в базу
-            Firebase.firestore.collection("bloggers").document(user.uid).set(userData)
-        }
+    override fun createUser(firebaseUser: FirebaseUser) {
+        val user: FirebaseUser = firebaseUser
+        val userData = mapOf(
+            "uid" to user.uid,
+            "name" to user.displayName,
+            "email" to user.email,
+            "photoUrl" to user.photoUrl?.toString(),
+            "locations" to 0,
+            "videos" to 0,
+        )
+        //добавляем данные в базу
+        Firebase.firestore.collection("bloggers").document(user.uid).set(userData)
+    }
 
     /**
      * добавляем информацию о видео в Firebase
@@ -74,7 +80,12 @@ class FireBaseData @Inject constructor() : IFireBaseData {
      * @param startTS время начала записи видео
      * @param endTS время окончания записи видео
      */
-    override fun updateVideo(user: FirebaseUser, video: Video, startTS: Timestamp, endTS: Timestamp) {
+    override fun updateVideo(
+        user: FirebaseUser,
+        video: Video,
+        startTS: Timestamp,
+        endTS: Timestamp
+    ) {
 
         val videoId = video.id
 
@@ -124,21 +135,22 @@ class FireBaseData @Inject constructor() : IFireBaseData {
      * @param userId выбранный пользователь
      * @return Список Видео в формате Firebase [FirebaseVideo]
      */
-    override suspend fun loadVideos(userId: String): List<FirebaseVideo> = suspendCoroutine { continuation ->
-        Firebase.firestore.collection("bloggers").document(userId)
-            .collection("videos")
-            .orderBy("start", Query.Direction.DESCENDING)
-            .get()
-            .addOnCompleteListener { task ->
-                task.result?.let {
-                    continuation.resume(it.toObjects(FirebaseVideo::class.java))
+    override suspend fun loadVideos(userId: String): List<FirebaseVideo> =
+        suspendCoroutine { continuation ->
+            Firebase.firestore.collection("bloggers").document(userId)
+                .collection("videos")
+                .orderBy("start", Query.Direction.DESCENDING)
+                .get()
+                .addOnCompleteListener { task ->
+                    task.result?.let {
+                        continuation.resume(it.toObjects(FirebaseVideo::class.java))
+                    }
+                    task.exception?.let {
+                        continuation.resumeWithException(it)
+                        Timber.e("Firebase load videos request is failed $it")
+                    }
                 }
-                task.exception?.let {
-                    continuation.resumeWithException(it)
-                    Timber.e("Firebase load videos request is failed $it")
-                }
-            }
-    }
+        }
 
     /**
      * Запрашиваем информацию о местоположениии выбранного пользователя в заданом интервале времени
@@ -147,7 +159,7 @@ class FireBaseData @Inject constructor() : IFireBaseData {
      * @param end конечная точка времени
      * @return Список Локаций в формате Firebase [FirebaseLocation]
      */
-    override suspend fun loadLocations(userId: String, start: Date, end: Date): List<FirebaseLocation> =
+/*    override suspend fun loadLocations(userId: String, start: Date, end: Date): List<FirebaseLocation> =
         suspendCoroutine { continuation ->
             Firebase.firestore.collection("bloggers").document(userId)
                 .collection("locations")
@@ -163,6 +175,28 @@ class FireBaseData @Inject constructor() : IFireBaseData {
                     }
                     task.exception?.let {
                         continuation.resumeWithException(it)
+                        Timber.e("Firebase load locations request is failed $it")
+                    }
+                }
+        }*/
+    override suspend fun loadLocations(
+        userId: String,
+        start: Date,
+        end: Date
+    ): Resource<List<FirebaseLocation>> =
+        suspendCoroutine { continuation ->
+            Firebase.firestore.collection("bloggers").document(userId)
+                .collection("locations")
+                .whereGreaterThanOrEqualTo("timestamp", Timestamp(start))
+                .whereLessThanOrEqualTo("timestamp", Timestamp(end))
+                .orderBy("timestamp")
+                .get()
+                .addOnCompleteListener { task ->
+                    task.result?.let {
+                        continuation.resume(Resource.Success(it.toObjects(FirebaseLocation::class.java)))
+                    }
+                    task.exception?.let {
+                        continuation.resume(Resource.Error(it.message?:"Unknown error"))
                         Timber.e("Firebase load locations request is failed $it")
                     }
                 }

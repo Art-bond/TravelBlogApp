@@ -18,5 +18,6 @@
     <string name="spectator_mode">Spectator Mode</string>
     <string name="logo_image">Logo image</string>
     <string name="avatar_image">avatar image</string>
+    <string name="bloggers">Popular Bloggers</string>
 
 </resources>
