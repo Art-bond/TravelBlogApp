@@ -21,7 +21,7 @@ Stack:
 Верстка https://www.figma.com/file/n6xFBigkQ35w0Z6b1kQRCK/TravelBlox
 
 
-<img src="https://github.com/Art-bond/okRes/blob/main/travel_blog_2.gif" width="320">
+<img src="https://github.com/Art-bond/okRes/blob/main/travel_blog_3.gif" width="320">
 
 <img src="https://github.com/Art-bond/okRes/blob/main/travel2.gif" width="320">
 
